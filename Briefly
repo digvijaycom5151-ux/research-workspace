@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Workspace</title>
+<style>
+body{font-family:-apple-system,sans-serif;background:#f4f1eb;color:#263b32;margin:0}
+header{background:#263b32;color:white;padding:20px}
+main{padding:16px}
+section{background:white;border-radius:14px;padding:16px;margin:12px 0}
+button{padding:12px;border:0;border-radius:8px;background:#dce8df;margin:4px}
+textarea{width:95%;min-height:100px;padding:10px}
+.note{background:#fff4ce;padding:12px;margin:8px 0;border-left:4px solid #dfbd53}
+</style>
+</head>
+<body>
+<header><h2>Research Workspace</h2><p>Your documents. Your notes. Your ideas.</p></header>
+<main>
+<section><h3>📚 Documents</h3><input type="file" accept="application/pdf" onchange="document.getElementById('filename').textContent=this.files[0]?.name||''"><p id="filename"></p></section>
+<section><h3>📝 Research Notes</h3><div id="notes"><div class="note" contenteditable="true">Tap here to write your first note.</div></div><button onclick="let n=document.createElement('div');n.className='note';n.contentEditable=true;n.textContent='New note — tap to edit';document.getElementById('notes').appendChild(n)">+ New Note</button></section>
+<section><h3>💡 Quick Idea</h3><textarea id="idea" placeholder="Write your legal argument or case reference..."></textarea><br><button onclick="if(document.getElementById('idea').value.trim()){let n=document.createElement('div');n.className='note';n.contentEditable=true;n.textContent=document.getElementById('idea').value;document.getElementById('notes').appendChild(n);document.getElementById('idea').value=''}">Add to Notes</button></section>
+</main>
+</body>
+</html>
