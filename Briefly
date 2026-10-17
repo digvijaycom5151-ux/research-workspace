@@ -1,24 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Research Workspace</title>
 <style>
-body{font-family:-apple-system,sans-serif;background:#f4f1eb;color:#263b32;margin:0}
-header{background:#263b32;color:white;padding:20px}
-main{padding:16px}
-section{background:white;border-radius:14px;padding:16px;margin:12px 0}
-button{padding:12px;border:0;border-radius:8px;background:#dce8df;margin:4px}
-textarea{width:95%;min-height:100px;padding:10px}
-.note{background:#fff4ce;padding:12px;margin:8px 0;border-left:4px solid #dfbd53}
+:root {
+  --navy:#17243b;
+  --blue:#315ee8;
+  --paper:#f5f7fb;
+  --line:#e0e5ee;
+  --ink:#202b3c;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+}
+header {
+  background:var(--navy);
+  color:white;
+  padding:20px 18px;
+}
+header h1 { margin:0 0 6px; font-size:24px; }
+header p { margin:0; color:#d8e0ef; font-size:14px; }
+nav {
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:12px;
+  background:white;
+  border-bottom:1px solid var(--line);
+}
+nav button {
+  flex-shrink:0;
+  border:0;
+  border-radius:10px;
+  background:#edf1f8;
+  color:var(--ink);
+  padding:11px 14px;
+  font-size:14px;
+}
+nav button.active { background:var(--blue); color:white; }
+main { padding:16px; max-width:1100px; margin:auto; }
+.panel {
+  background:white;
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:16px;
+  margin-bottom:16px;
+}
+h2 { margin:0 0 8px; font-size:21px; }
+h3 { margin:0 0 10px; }
+.muted { color:#657188; font-size:14px; }
+input, textarea, select {
+  width:100%;
+  padding:12px;
+  margin:6px 0 12px;
+  border:1px solid #ccd4e2;
+  border-radius:9px;
+  background:white;
+  color:var(--ink);
+  font:inherit;
+}
+textarea { min-height:100px; resize:vertical; }
+button.action {
+  border:0;
+  border-radius:9px;
+  background:var(--blue);
+  color:white;
+  padding:12px 15px;
+  font-size:14px;
+  font-weight:600;
+  margin:3px 4px 3px 0;
+}
+button.secondary { background:#e9edf5; color:var(--ink); }
+button.danger { background:#a92d3a; color:white; }
+[hidden] { display:none !important; }
+#pdfFrame {
+  width:100%;
+  height:65vh;
+  min-height:350px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#e9edf5;
+}
+#board {
+  position:relative;
+  min-height:570px;
+  overflow:hidden;
+  border:1px dashed #b9c5d8;
+  border-radius:12px;
+  background-color:#fbfcff;
+  background-image:radial-gradient(#d8dfeb 1px,transparent 1px);
+  background-size:20px 20px;
+}
+.note {
+  position:absolute;
+  width:210px;
+  min-height:145px;
+  padding:12px;
+  border-radius:10px;
+  box-shadow:0 3px 10px #17243b18;
+  background:#fff2ad;
+  border:1px solid #e7d77e;
+  touch-action:none;
+}
+.note:nth-child(even) { background:#dff5e7; border-color:#b7dfc4; }
+.note .dragbar {
+  font-size:12px;
+  font-weight:700;
+  color:#5c6471;
+  padding-bottom:8px;
+  cursor:grab;
+  user-select:none;
+}
+.note textarea {
+  border:0;
+  background:transparent;
+  padding:4px 0;
+  min-height:85px;
+  margin:0;
+}
+.note .remove-note {
+  float:right;
+  border:0;
+  background:transparent;
+  color:#7b2631;
+  font-size:17px;
+}
+.case-card {
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:13px;
+  margin-top:10px;
+  overflow-wrap:anywhere;
+}
+.case-card h3 { font-size:17px; }
+.tag {
+  display:inline-block;
+  background:#edf1fa;
+  border-radius:6px;
+  padding:4px 7px;
+  margin:4px 0;
+  font-size:12px;
+}
+footer { text-align:center; color:#6b7587; padding:22px; font-size:12px; }
+@media(max-width:500px) {
+  main { padding:10px; }
+  .panel { padding:12px; }
+  #board { min-height:650px; }
+  .note { width:185px; }
+}
 </style>
 </head>
 <body>
-<header><h2>Research Workspace</h2><p>Your documents. Your notes. Your ideas.</p></header>
+
+<header>
+  <h1>⚖️ Research Workspace</h1>
+  <p>Your legal documents, research notes and case library in one place.</p>
+</header>
+
+<nav>
+  <button class="active" data-tab="reader">📄 PDF Reader</button>
+  <button data-tab="notes">📝 Research Notes</button>
+  <button data-tab="cases">⚖️ Case Library</button>
+</nav>
+
 <main>
-<section><h3>📚 Documents</h3><input type="file" accept="application/pdf" onchange="document.getElementById('filename').textContent=this.files[0]?.name||''"><p id="filename"></p></section>
-<section><h3>📝 Research Notes</h3><div id="notes"><div class="note" contenteditable="true">Tap here to write your first note.</div></div><button onclick="let n=document.createElement('div');n.className='note';n.contentEditable=true;n.textContent='New note — tap to edit';document.getElementById('notes').appendChild(n)">+ New Note</button></section>
-<section><h3>💡 Quick Idea</h3><textarea id="idea" placeholder="Write your legal argument or case reference..."></textarea><br><button onclick="if(document.getElementById('idea').value.trim()){let n=document.createElement('div');n.className='note';n.contentEditable=true;n.textContent=document.getElementById('idea').value;document.getElementById('notes').appendChild(n);document.getElementById('idea').value=''}">Add to Notes</button></section>
+  <section id="reader" class="tab">
+    <div class="panel">
+      <h2>PDF Reader</h2>
+      <p class="muted">Choose a PDF saved in Files on your iPad.</p>
+      <input id="pdfFile" type="file" accept="application/pdf,.pdf">
+      <p id="pdfStatus" class="muted">No PDF selected yet.</p>
+      <button class="action secondary" id="openPdf" hidden>Open PDF in new tab</button>
+    </div>
+    <div class="panel">
+      <iframe id="pdfFrame" title="PDF document viewer"></iframe>
+      <p class="muted">
+        Tip: Use the PDF viewer's own controls to zoom or move between pages.
+        The PDF is opened locally in your browser.
+      </p>
+    </div>
+  </section>
+
+  <section id="notes" class="tab" hidden>
+    <div class="panel">
+      <h2>Research Notes</h2>
+      <p class="muted">Create notes and drag them around the workspace. Tap the note text to edit it.</p>
+      <button class="action" id="addNote">＋ Add a note</button>
+      <button class="action secondary" id="saveNotes">Save notes</button>
+      <button class="action secondary" id="resetBoard">Reset layout</button>
+      <p id="noteStatus" class="muted" aria-live="polite"></p>
+    </div>
+    <div id="board"></div>
+  </section>
+
+  <section id="cases" class="tab" hidden>
+    <div class="panel">
+      <h2>Case Library</h2>
+      <p class="muted">Keep track of judgments and legal issues you research.</p>
+      <label for="caseName">Case name</label>
+      <input id="caseName" placeholder="e.g. Sharma v. State of Rajasthan">
+      <label for="citation">Citation / case number</label>
+      <input id="citation" placeholder="e.g. AIR 2024 SC ...">
+      <label for="court">Court</label>
+      <input id="court" placeholder="e.g. Supreme Court of India">
+      <label for="issue">Legal issue / notes</label>
+      <textarea id="issue" placeholder="Write the legal principle, relevant paragraph, or issue..."></textarea>
+      <button class="action" id="addCase">＋ Save case</button>
+      <button class="action secondary" id="clearForm">Clear form</button>
+      <p id="caseStatus" class="muted" aria-live="polite"></p>
+    </div>
+    <div class="panel">
+      <h2>Find a case</h2>
+      <input id="searchCases" placeholder="Search by case name, citation, court or issue...">
+      <div id="caseList"></div>
+    </div>
+  </section>
 </main>
+
+<footer>Research Workspace · Early prototype · Keep backups of important legal research.</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* Navigation */
+document.querySelectorAll("nav button").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(tab => tab.hidden = true);
+    button.classList.add("active");
+    $(button.dataset.tab).hidden = false;
+  });
+});
+
+/* PDF Reader */
+let currentPdfUrl = null;
+$("pdfFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    $("pdfStatus").textContent = "Please choose a PDF file.";
+    return;
+  }
+
+  if (currentPdfUrl) URL.revokeObjectURL(currentPdfUrl);
+  currentPdfUrl = URL.createObjectURL(file);
+  $("pdfFrame").src = currentPdfUrl;
+  $("pdfStatus").textContent = "Opened: " + file.name;
+  $("openPdf").hidden = false;
+});
+
+$("openPdf").addEventListener("click", () => {
+  if (currentPdfUrl) window.open(currentPdfUrl, "_blank", "noopener");
+});
+
+/* Research Notes */
+let notes = [];
+let nextNoteId = 1;
+
+function loadNotes() {
+  try {
+    notes = JSON.parse(localStorage.getItem("rw_notes") || "[]");
+    nextNoteId = Math.max(1, ...notes.map(n => Number(n.id) + 1));
+  } catch {
+    notes = [];
+  }
+  renderNotes();
+}
+
+function saveNotes(showMessage = true) {
+  try {
+    localStorage.setItem("rw_notes", JSON.stringify(notes));
+    if (showMessage) $("noteStatus").textContent = "Notes saved on this browser.";
+  } catch {
+    $("noteStatus").textContent = "Could not save. Browser storage may be unavailable.";
+  }
+}
+
+function renderNotes() {
+  const board = $("board");
+  board.innerHTML = "";
+
+  notes.forEach(note => {
+    const card = document.createElement("div");
+    card.className = "note";
+    card.style.left = Math.max(0, Number(note.x) || 0) + "px";
+    card.style.top = Math.max(0, Number(note.y) || 0) + "px";
+
+    const bar = document.createElement("div");
+    bar.className = "dragbar";
+    bar.textContent = "↕ DRAG NOTE";
+
+    const remove = document.createElement("button");
+    remove.className = "remove-note";
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", "Delete note");
+    remove.addEventListener("click", () => {
+      notes = notes.filter(n => n.id !== note.id);
+      saveNotes(false);
+      renderNotes();
+    });
+
+    const text = document.createElement("textarea");
+    text.placeholder = "Write a thought, quote, or legal argument...";
+    text.value = note.text || "";
+    text.setAttribute("aria-label", "Note text");
+    text.addEventListener("input", () => {
+      note.text = text.value;
+      saveNotes(false);
+    });
+
+    bar.appendChild(remove);
+    card.appendChild(bar);
+    card.appendChild(text);
+    board.appendChild(card);
+
+    let startX, startY, originalX, originalY;
+
+    bar.addEventListener("pointerdown", event => {
+      if (event.target === remove) return;
+      event.preventDefault();
+      bar.setPointerCapture(event.pointerId);
+      startX = event.clientX;
+      startY = event.clientY;
+      originalX = parseFloat(card.style.left) || 0;
+      originalY = parseFloat(card.style.top) || 0;
+    });
+
+    bar.addEventListener("pointermove", event => {
+      if (startX === undefined) return;
+      const maxX = Math.max(0, board.clientWidth - card.offsetWidth);
+      const maxY = Math.max(0, board.clientHeight - card.offsetHeight);
+      card.style.left = Math.max(0, Math.min(maxX, originalX + event.clientX - startX)) + "px";
+      card.style.top = Math.max(0, Math.min(maxY, originalY + event.clientY - startY)) + "px";
+      note.x = parseFloat(card.style.left);
+      note.y = parseFloat(card.style.top);
+    });
+
+    const finishDrag = () => {
+      if (startX !== undefined) saveNotes(false);
+      startX = undefined;
+      startY = undefined;
+    };
+    bar.addEventListener("pointerup", finishDrag);
+    bar.addEventListener("pointercancel", finishDrag);
+  });
+}
+
+$("addNote").addEventListener("click", () => {
+  const board = $("board");
+  notes.push({
+    id: nextNoteId++,
+    text: "",
+    x: Math.max(0, Math.min(20 + notes.length * 12, board.clientWidth - 210)),
+    y: Math.max(0, Math.min(20 + notes.length * 18, board.clientHeight - 150))
+  });
+  renderNotes();
+  saveNotes(false);
+  $("noteStatus").textContent = "New note added. Tap its text to write.";
+});
+
+$("saveNotes").addEventListener("click", () => saveNotes(true));
+
+$("resetBoard").addEventListener("click", () => {
+  if (!confirm("Reset the note positions? Your note text will be kept.")) return;
+  notes.forEach((note, i) => {
+    note.x = 20 + (i % 3) * 20;
+    note.y = 20 + i * 20;
+  });
+  renderNotes();
+  saveNotes(true);
+});
+
+/* Case Library */
+let cases = [];
+let editingCaseId = null;
+
+function loadCases() {
+  try {
+    cases = JSON.parse(localStorage.getItem("rw_cases") || "[]");
+  } catch {
+    cases = [];
+  }
+  renderCases();
+}
+
+function saveCases() {
+  try {
+    localStorage.setItem("rw_cases", JSON.stringify(cases));
+    $("caseStatus").textContent = "Case saved on this browser.";
+  } catch {
+    $("caseStatus").textContent = "Could not save. Browser storage may be unavailable.";
+  }
+}
+
+function clearCaseForm() {
+  ["caseName", "citation", "court", "issue"].forEach(id => $(id).value = "");
+  editingCaseId = null;
+  $("addCase").textContent = "＋ Save case";
+}
+
+$("clearForm").addEventListener("click", clearCaseForm);
+
+$("addCase").addEventListener("click", () => {
+  const name = $("caseName").value.trim();
+  if (!name) {
+    $("caseStatus").textContent = "Please enter a case name first.";
+    $("caseName").focus();
+    return;
+  }
+
+  const item = {
+    id: editingCaseId || Date.now(),
+    name,
+    citation: $("citation").value.trim(),
+    court: $("court").value.trim(),
+    issue: $("issue").value.trim()
+  };
+
+  if (editingCaseId) {
+    cases = cases.map(c => c.id === editingCaseId ? item : c);
+  } else {
+    cases.unshift(item);
+  }
+
+  clearCaseForm();
+  saveCases();
+  renderCases();
+});
+
+function makeButton(label, className, action) {
+  const button = document.createElement("button");
+  button.className = "action " + (className || "secondary");
+  button.textContent = label;
+  button.addEventListener("click", action);
+  return button;
+}
+
+function renderCases() {
+  const list = $("caseList");
+  list.innerHTML = "";
+  const query = $("searchCases").value.trim().toLowerCase();
+
+  const filtered = cases.filter(item =>
+    [item.name, item.citation, item.court, item.issue]
+      .some(value => (value || "").toLowerCase().includes(query))
+  );
+
+  if (!filtered.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = query ? "No matching cases found." : "No cases saved yet. Add your first case above.";
+    list.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "case-card";
+
+    const title = document.createElement("h3");
+    title.textContent = item.name;
+    card.appendChild(title);
+
+    if (item.citation) {
+      const citation = document.createElement("div");
+      citation.className = "tag";
+      citation.textContent = item.citation;
+      card.appendChild(citation);
+    }
+
+    if (item.court) {
+      const court = document.createElement("p");
+      court.className = "muted";
+      court.textContent = "Court: " + item.court;
+      card.appendChild(court);
+    }
+
+    if (item.issue) {
+      const issue = document.createElement("p");
+      issue.style.whiteSpace = "pre-wrap";
+      issue.textContent = item.issue;
+      card.appendChild(issue);
+    }
+
+    card.appendChild(makeButton("Edit", "secondary", () => {
+      editingCaseId = item.id;
+      $("caseName").value = item.name;
+      $("citation").value = item.citation || "";
+      $("court").value = item.court || "";
+      $("issue").value = item.issue || "";
+      $("addCase").textContent = "Update case";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }));
+
+    card.appendChild(makeButton("Delete", "danger", () => {
+      if (!confirm("Delete this case from your library?")) return;
+      cases = cases.filter(c => c.id !== item.id);
+      saveCases();
+      renderCases();
+    }));
+
+    list.appendChild(card);
+  });
+}
+
+$("searchCases").addEventListener("input", renderCases);
+
+/* Start */
+loadNotes();
+loadCases();
+</script>
 </body>
 </html>
